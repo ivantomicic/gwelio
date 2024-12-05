@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy } from 'lucide-react';
 import { LoginForm } from '../Auth/LoginForm';
 import { RegisterForm } from '../Auth/RegisterForm';
 import { ThemeToggle } from '../Theme/ThemeToggle';
 import { Toaster } from 'react-hot-toast';
 import { useThemeStore } from '../../store/themeStore';
 
+const quotes = [
+  'It is better to die like a tiger, than to live like a pussy.',
+  'Ping pong, or as the Chinese say: "Ping pong".',
+  'Less talkie-talkie, more ping-pong.'
+];
+
 export function AuthLayout() {
   const [showLogin, setShowLogin] = useState(true);
+  const [quote, setQuote] = useState('');
   const isDark = useThemeStore((state) => state.isDark);
+
+  useEffect(() => {
+    // Set random quote on mount
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    setQuote(randomQuote);
+  }, []);
 
   useEffect(() => {
     if (isDark) {
@@ -25,12 +37,16 @@ export function AuthLayout() {
       </div>
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <Trophy className="mx-auto h-12 w-12 text-blue-600 dark:text-blue-400" />
+          <img 
+            src="/logo.png" 
+            alt="Gwelio Logo" 
+            className="mx-auto h-12 w-12"
+          />
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Table Tennis Tracker
+            Gwelio
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            {showLogin ? 'Sign in to track your matches' : 'Create a new account'}
+            {quote}
           </p>
         </div>
         {showLogin ? (
