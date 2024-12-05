@@ -6,12 +6,13 @@ import toast from 'react-hot-toast';
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const signIn = useAuthStore((state) => state.signIn);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signIn(email, password);
+      await signIn(email, password, rememberMe);
       toast.success('Successfully logged in!');
     } catch (error) {
       toast.error('Failed to login. Please check your credentials.');
@@ -45,6 +46,18 @@ export function LoginForm() {
             required
           />
         </div>
+      </div>
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="remember-me"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+          Remember me
+        </label>
       </div>
       <button
         type="submit"
