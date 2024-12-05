@@ -17,11 +17,11 @@ export function Header() {
 						<Link to="/" className="flex items-center">
 							<img
 								src="/logo.png"
-								alt="Gwelio Logo"
+								alt="Gweilo Logo"
 								className="h-8 w-8"
 							/>
 							<span className="ml-2 text-lg font-semibold text-gray-900 dark:text-white">
-								Gwelio
+								Gweilo
 							</span>
 						</Link>
 					</div>
