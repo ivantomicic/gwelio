@@ -13,7 +13,7 @@ export function DashboardLayout() {
   const user = useAuthStore((state) => state.user);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
-  useTheme(); // Initialize theme
+  useTheme();
 
   const fetchMatches = async () => {
     if (!user) return;
@@ -21,7 +21,7 @@ export function DashboardLayout() {
       const userMatches = await getMatches(user.id);
       setMatches(userMatches);
     } catch (error) {
-      console.error('Error fetching matches:', error);
+      console.error('Greška pri učitavanju mečeva:', error);
     } finally {
       setLoading(false);
     }
@@ -46,11 +46,11 @@ export function DashboardLayout() {
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
-        <DashboardSection title="New Match">
+        <DashboardSection title="Novi Meč">
           <NewMatch onMatchCreated={handleMatchCreated} />
         </DashboardSection>
 
-        <DashboardSection title="Latest Matches">
+        <DashboardSection title="Poslednji Mečevi">
           <MatchList 
             matches={matches} 
             onMatchUpdated={handleMatchUpdated}
@@ -58,9 +58,9 @@ export function DashboardLayout() {
         </DashboardSection>
       </div>
 
-      <DashboardSection title="Statistics">
+      <DashboardSection title="Statistika">
         {loading ? (
-          <p className="text-gray-600 dark:text-gray-400">Loading statistics...</p>
+          <p className="text-gray-600 dark:text-gray-400">Učitavanje statistike...</p>
         ) : user && matches ? (
           <MatchStats matches={matches} userId={user.id} />
         ) : null}

@@ -18,11 +18,11 @@ export function AuthLayout() {
     async function fetchUsers() {
       try {
         const allUsers = await getAllUsers();
-        console.log('Fetched users:', allUsers);
+        console.log('Dohvaćeni korisnici:', allUsers);
         setUsers(allUsers);
       } catch (error) {
-        console.error('Error fetching users:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch users');
+        console.error('Greška pri dohvatanju korisnika:', error);
+        setError(error instanceof Error ? error.message : 'Neuspešno dohvatanje korisnika');
       } finally {
         setLoading(false);
       }
@@ -36,10 +36,10 @@ export function AuthLayout() {
         <div className="text-center">
           <Trophy className="mx-auto h-12 w-12 text-blue-600 dark:text-blue-500" />
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Table Tennis Tracker
+            Stoni Tenis Tracker
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            {showLogin ? 'Sign in to track your matches' : 'Create a new account'}
+            {showLogin ? 'Prijavite se da pratite svoje mečeve' : 'Napravite novi nalog'}
           </p>
         </div>
 
@@ -50,12 +50,12 @@ export function AuthLayout() {
           <>
             <LoginForm />
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
+              Nemate nalog?{' '}
               <button
                 onClick={() => setShowLogin(false)}
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
-                Create one
+                Napravite ga
               </button>
             </p>
           </>
@@ -63,35 +63,35 @@ export function AuthLayout() {
           <>
             <RegisterForm onToggle={() => setShowLogin(true)} />
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
+              Već imate nalog?{' '}
               <button
                 onClick={() => setShowLogin(true)}
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
-                Sign in
+                Prijavite se
               </button>
             </p>
           </>
         )}
       </div>
 
-      {/* Debug section */}
+      {/* Debug sekcija */}
       <div className="mt-8 w-full max-w-md bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Debug: Registered Users</h3>
+        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Debug: Registrovani Korisnici</h3>
         {loading ? (
-          <p className="text-gray-600 dark:text-gray-400">Loading users...</p>
+          <p className="text-gray-600 dark:text-gray-400">Učitavanje korisnika...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : users.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">No users found</p>
+          <p className="text-gray-600 dark:text-gray-400">Nema pronađenih korisnika</p>
         ) : (
           <div className="space-y-2">
             {users.map(user => (
               <div key={user.id} className="p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <p><strong>ID:</strong> {user.id}</p>
-                <p><strong>Name:</strong> {user.full_name}</p>
+                <p><strong>Ime:</strong> {user.full_name}</p>
                 <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Admin:</strong> {user.is_admin ? 'Yes' : 'No'}</p>
+                <p><strong>Admin:</strong> {user.is_admin ? 'Da' : 'Ne'}</p>
               </div>
             ))}
           </div>

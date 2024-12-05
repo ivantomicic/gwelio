@@ -29,8 +29,8 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
         const allUsers = await getAllUsers();
         setUsers(allUsers);
       } catch (error) {
-        console.error('Error fetching users:', error);
-        toast.error('Failed to load users');
+        console.error('Greška pri učitavanju korisnika:', error);
+        toast.error('Neuspešno učitavanje korisnika');
       } finally {
         setLoading(false);
       }
@@ -54,16 +54,16 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
       const updatedMatch = await updateMatchStatus(matchId, action);
       if (updatedMatch) {
         onMatchUpdated(updatedMatch);
-        toast.success(`Match ${action} successfully`);
+        toast.success(action === 'confirmed' ? 'Meč je potvrđen' : 'Meč je odbijen');
       }
     } catch (error) {
-      toast.error('Failed to update match status');
+      toast.error('Greška pri ažuriranju statusa meča');
     }
   };
 
   const getPlayerName = (playerId: string) => {
     const player = users.find(u => u.id === playerId);
-    return player?.full_name || 'Unknown Player';
+    return player?.full_name || 'Nepoznat Igrač';
   };
 
   const getPlayedAgainstUsers = () => {
@@ -88,7 +88,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <p className="text-gray-600 dark:text-gray-400">Loading matches...</p>
+        <p className="text-gray-600 dark:text-gray-400">Učitavanje mečeva...</p>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
             onChange={(e) => setSelectedPlayer(e.target.value)}
             className="text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md px-2 py-1"
           >
-            <option value="">All Players</option>
+            <option value="">Svi Igrači</option>
             {playedAgainstUsers.map(player => (
               <option key={player.id} value={player.id}>
                 {player.full_name}
@@ -117,7 +117,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
 
       <div className="space-y-3">
         {paginatedMatches.length === 0 ? (
-          <p className="text-center text-gray-600 dark:text-gray-400">No matches found</p>
+          <p className="text-center text-gray-600 dark:text-gray-400">Nema pronađenih mečeva</p>
         ) : (
           <>
             {paginatedMatches.map((match) => (
@@ -146,7 +146,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
                 </button>
                 
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Page {currentPage} of {totalPages}
+                  Strana {currentPage} od {totalPages}
                 </span>
 
                 <button

@@ -8,7 +8,7 @@ export function AuthDivider() {
       </div>
       <div className="relative flex justify-center text-sm">
         <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-          or continue with
+          ili nastavite sa
         </span>
       </div>
     </div>

@@ -19,10 +19,10 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
 
     try {
       await registerUser(email, password, fullName);
-      toast.success('Account created successfully!');
-      onToggle(); // Switch back to login form
+      toast.success('Nalog je uspešno kreiran!');
+      onToggle();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create account';
+      const message = error instanceof Error ? error.message : 'Neuspešno kreiranje naloga';
       toast.error(message);
     } finally {
       setLoading(false);
@@ -32,42 +32,42 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
-        <label className="block text-sm font-medium text-gray-700">Full Name</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ime i prezime</label>
         <div className="mt-1 relative">
-          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
           <input
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Email</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
         <div className="mt-1 relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lozinka</label>
         <div className="mt-1 relative">
-          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
             minLength={6}
           />
@@ -77,9 +77,9 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
       >
-        {loading ? 'Creating Account...' : 'Create Account'}
+        {loading ? 'Kreiranje naloga...' : 'Kreiraj nalog'}
       </button>
     </form>
   );

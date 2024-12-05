@@ -13,9 +13,9 @@ export function LoginForm() {
     e.preventDefault();
     try {
       await signIn(email, password, rememberMe);
-      toast.success('Successfully logged in!');
+      toast.success('Uspešno ste se prijavili!');
     } catch (error) {
-      toast.error('Failed to login. Please check your credentials.');
+      toast.error('Neuspešna prijava. Proverite vaše podatke.');
     }
   };
 
@@ -35,7 +35,7 @@ export function LoginForm() {
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lozinka</label>
         <div className="mt-1 relative">
           <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
           <input
@@ -56,14 +56,14 @@ export function LoginForm() {
           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-800"
         />
         <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-          Remember me
+          Zapamti me
         </label>
       </div>
       <button
         type="submit"
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
       >
-        Sign In
+        Prijavi se
       </button>
     </form>
   );
