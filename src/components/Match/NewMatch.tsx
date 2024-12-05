@@ -3,6 +3,7 @@ import { useAuthStore } from "../../store/authStore";
 import { createMatch } from "../../lib/matches";
 import { getAllUsers } from "../../lib/supabase";
 import { Set, User } from "../../types";
+import { fireConfetti } from "../../lib/confetti";
 import {
 	Plus,
 	User as UserIcon,
@@ -99,6 +100,7 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 			);
 			onMatchCreated(newMatch);
 			toast.success("Match submitted for confirmation");
+			fireConfetti(); // Fire confetti on successful submission
 
 			setOpponent("");
 			setSets([{ player1Score: 0, player2Score: 0 }]);

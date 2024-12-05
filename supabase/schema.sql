@@ -86,6 +86,15 @@ create policy "Players can update match status"
     (new.status = 'confirmed' or new.status = 'rejected')
   );
 
+create policy "Players can delete their matches"
+  on public.matches for delete
+  to authenticated
+  using (
+    (auth.uid() = player1_id or auth.uid() = player2_id or 
+     exists(select 1 from public.users where id = auth.uid() and is_admin = true)) and
+    (status = 'confirmed' or status = 'pending')
+  );
+
 -- Create policies for match sets table
 create policy "Users can view match sets they're involved in"
   on public.match_sets for select

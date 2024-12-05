@@ -1,6 +1,6 @@
 import React from 'react';
 import { Match, User } from '../../types';
-import { Check, X, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, X, AlertTriangle, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
@@ -9,6 +9,7 @@ interface MatchCardProps {
   onToggleExpand: () => void;
   onConfirm?: () => void;
   onReject?: () => void;
+  onDelete?: () => void;
   getPlayerName: (id: string) => string;
 }
 
@@ -19,6 +20,7 @@ export function MatchCard({
   onToggleExpand,
   onConfirm,
   onReject,
+  onDelete,
   getPlayerName
 }: MatchCardProps) {
   const isPlayer1 = currentUser?.id === match.player1_id;
@@ -40,6 +42,9 @@ export function MatchCard({
       year: 'numeric'
     }).replace(/\//g, '.');
   };
+
+  const canDelete = (match.status === 'confirmed' || match.status === 'pending') && 
+    (currentUser?.id === match.player1_id || currentUser?.id === match.player2_id || currentUser?.is_admin);
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ${borderColorClass}`}>
@@ -87,6 +92,16 @@ export function MatchCard({
                   <X size={16} className="md:w-5 md:h-5" />
                 </button>
               </>
+            )}
+            
+            {canDelete && onDelete && (
+              <button
+                onClick={onDelete}
+                className="p-1.5 md:p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                title="Izbriši meč"
+              >
+                <Trash2 size={16} className="md:w-5 md:h-5" />
+              </button>
             )}
             
             <MatchStatus status={match.status} />

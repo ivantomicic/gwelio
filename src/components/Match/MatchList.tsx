@@ -2,25 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { Match, User } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-import { updateMatchStatus } from '../../lib/matches';
+import { updateMatchStatus, deleteMatch } from '../../lib/matches';
 import { getAllUsers } from '../../lib/supabase';
 import { MatchCard } from './MatchCard';
+import { DeleteMatchDialog } from './DeleteMatchDialog';
 import toast from 'react-hot-toast';
 
 interface MatchListProps {
   matches: Match[];
   onMatchUpdated: (match: Match) => void;
+  onMatchDeleted: (matchId: string) => void;
 }
 
 const MATCHES_PER_PAGE = 3;
 
-export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
+export function MatchList({ matches, onMatchUpdated, onMatchDeleted }: MatchListProps) {
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [filteredMatches, setFilteredMatches] = useState<Match[]>(matches);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [matchToDelete, setMatchToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
@@ -58,6 +63,28 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
       }
     } catch (error) {
       toast.error('Greška pri ažuriranju statusa meča');
+    }
+  };
+
+  const handleDeleteClick = (matchId: string) => {
+    setMatchToDelete(matchId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!matchToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteMatch(matchToDelete);
+      onMatchDeleted(matchToDelete);
+      toast.success('Meč je uspešno izbrisan');
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      toast.error('Greška pri brisanju meča');
+    } finally {
+      setIsDeleting(false);
+      setMatchToDelete(null);
     }
   };
 
@@ -131,6 +158,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
                 )}
                 onConfirm={() => handleMatchAction(match.id, 'confirmed')}
                 onReject={() => handleMatchAction(match.id, 'rejected')}
+                onDelete={() => handleDeleteClick(match.id)}
                 getPlayerName={getPlayerName}
               />
             ))}
@@ -161,6 +189,13 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
           </>
         )}
       </div>
+
+      <DeleteMatchDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

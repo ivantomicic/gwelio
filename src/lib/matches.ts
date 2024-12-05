@@ -109,3 +109,15 @@ export const updateMatchStatus = async (
 
   return match;
 };
+
+export const deleteMatch = async (matchId: string): Promise<void> => {
+  const { error } = await supabase
+    .from('matches')
+    .delete()
+    .eq('id', matchId);
+
+  if (error) {
+    console.error('Error deleting match:', error);
+    throw error;
+  }
+};

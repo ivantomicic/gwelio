@@ -43,6 +43,10 @@ export function DashboardLayout() {
     );
   };
 
+  const handleMatchDeleted = (matchId: string) => {
+    setMatches(prevMatches => prevMatches.filter(match => match.id !== matchId));
+  };
+
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
@@ -54,6 +58,7 @@ export function DashboardLayout() {
           <MatchList 
             matches={matches} 
             onMatchUpdated={handleMatchUpdated}
+            onMatchDeleted={handleMatchDeleted}
           />
         </DashboardSection>
       </div>
