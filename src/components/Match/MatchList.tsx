@@ -46,7 +46,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
         match.player1_id === selectedPlayer || match.player2_id === selectedPlayer
       ));
     }
-    setCurrentPage(1); // Reset to first page when filter changes
+    setCurrentPage(1);
   }, [selectedPlayer, matches]);
 
   const handleMatchAction = async (matchId: string, action: 'confirmed' | 'rejected') => {
@@ -76,20 +76,19 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
     return users.filter(u => uniquePlayerIds.has(u.id));
   };
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredMatches.length / MATCHES_PER_PAGE);
   const startIndex = (currentPage - 1) * MATCHES_PER_PAGE;
   const paginatedMatches = filteredMatches.slice(startIndex, startIndex + MATCHES_PER_PAGE);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    setExpandedMatch(null); // Close any expanded match when changing pages
+    setExpandedMatch(null);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <p className="text-gray-600">Loading matches...</p>
+        <p className="text-gray-600 dark:text-gray-400">Loading matches...</p>
       </div>
     );
   }
@@ -100,11 +99,11 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
     <div>
       {playedAgainstUsers.length > 1 && (
         <div className="flex items-center space-x-2 mb-4">
-          <Filter className="h-4 w-4 md:h-5 md:w-5 text-gray-500" />
+          <Filter className="h-4 w-4 md:h-5 md:w-5 text-gray-500 dark:text-gray-400" />
           <select
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
-            className="text-sm border border-gray-300 rounded-md px-2 py-1"
+            className="text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md px-2 py-1"
           >
             <option value="">All Players</option>
             {playedAgainstUsers.map(player => (
@@ -118,7 +117,7 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
 
       <div className="space-y-3">
         {paginatedMatches.length === 0 ? (
-          <p className="text-center text-gray-600">No matches found</p>
+          <p className="text-center text-gray-600 dark:text-gray-400">No matches found</p>
         ) : (
           <>
             {paginatedMatches.map((match) => (
@@ -137,23 +136,23 @@ export function MatchList({ matches, onMatchUpdated }: MatchListProps) {
             ))}
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-center space-x-2 mt-4 pt-2 border-t border-gray-100">
+              <div className="flex items-center justify-center space-x-2 mt-4 pt-2 border-t border-gray-100 dark:border-gray-700">
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-1 rounded-md text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   Page {currentPage} of {totalPages}
                 </span>
 
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-1 rounded-md text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>

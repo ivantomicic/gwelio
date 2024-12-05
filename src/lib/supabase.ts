@@ -40,14 +40,10 @@ export async function getCurrentUser() {
 }
 
 export async function getAllUsers() {
-  console.log('Fetching all users...');
-  
   try {
-    // First check if we're authenticated
     const { data: { user } } = await supabase.auth.getUser();
     console.log('Current auth state:', user ? 'Authenticated' : 'Not authenticated');
 
-    // Get all users from the users table
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -58,7 +54,6 @@ export async function getAllUsers() {
       throw error;
     }
 
-    console.log('Fetched users:', data);
     return data || [];
   } catch (error) {
     console.error('Error in getAllUsers:', error);
@@ -80,7 +75,6 @@ export async function registerUser(email: string, password: string, fullName: st
     if (signUpError) throw signUpError;
     if (!user) throw new Error('Failed to create user');
 
-    // Sign in the user immediately
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -96,4 +90,12 @@ export async function registerUser(email: string, password: string, fullName: st
     }
     throw new Error('Registration failed');
   }
+}
+
+export async function updatePassword(newPassword: string) {
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+
+  if (error) throw error;
 }

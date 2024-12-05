@@ -23,7 +23,6 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
       if (!user) return;
       try {
         const allUsers = await getAllUsers();
-        // Filter out the current user
         const opponents = allUsers.filter(u => u.id !== user.id);
         setUsers(opponents);
       } catch (error) {
@@ -78,7 +77,6 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
       onMatchCreated(newMatch);
       toast.success('Match submitted for confirmation');
       
-      // Reset form
       setOpponent('');
       setSets([{ player1Score: 0, player2Score: 0 }]);
     } catch (error) {
@@ -89,7 +87,7 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 
   if (!user) {
     return (
-      <div className="text-center text-gray-600">
+      <div className="text-center text-gray-600 dark:text-gray-400">
         Please log in to create matches
       </div>
     );
@@ -98,14 +96,14 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <div className="text-gray-600">Loading opponents...</div>
+        <div className="text-gray-600 dark:text-gray-400">Loading opponents...</div>
       </div>
     );
   }
 
   if (users.length === 0) {
     return (
-      <div className="text-center text-gray-600">
+      <div className="text-center text-gray-600 dark:text-gray-400">
         No other players are available at the moment
       </div>
     );
@@ -114,11 +112,11 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700">Opponent</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Opponent</label>
         <select
           value={opponent}
           onChange={(e) => setOpponent(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           required
         >
           <option value="">Select opponent</option>
@@ -132,8 +130,8 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-2 pl-[72px] pr-[28px]">
-          <div className="text-sm font-medium text-gray-500 text-center">Your Score</div>
-          <div className="text-sm font-medium text-gray-500 text-center">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400 text-center">Your Score</div>
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400 text-center">
             {selectedOpponent ? `${selectedOpponent.full_name}'s Score` : 'Opponent Score'}
           </div>
         </div>
@@ -153,7 +151,7 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
         <button
           type="button"
           onClick={addSet}
-          className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800"
+          className="flex items-center space-x-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
         >
           <Plus className="h-4 w-4" />
           <span>Add Set</span>
@@ -163,7 +161,7 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
       <button
         type="submit"
         disabled={!opponent}
-        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Submit Match
       </button>

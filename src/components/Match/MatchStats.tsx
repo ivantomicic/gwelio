@@ -24,7 +24,6 @@ export function MatchStats({ matches, userId }: MatchStatsProps) {
     acc.setsWon += userScore;
     acc.setsLost += opponentScore;
 
-    // Calculate total points
     if (match.sets) {
       match.sets.forEach(set => {
         if (isPlayer1) {
@@ -64,95 +63,95 @@ export function MatchStats({ matches, userId }: MatchStatsProps) {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-3 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="md:col-span-3 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Win Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{winRate}%</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Win Rate</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{winRate}%</p>
             </div>
-            <Trophy className="h-8 w-8 text-blue-500" />
+            <Trophy className="h-8 w-8 text-blue-500 dark:text-blue-400" />
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-            <div className="bg-green-50 rounded-md p-2">
-              <p className="text-xs text-green-600">Wins</p>
-              <p className="text-lg font-semibold text-green-700">{stats.wins}</p>
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-md p-2">
+              <p className="text-xs text-green-600 dark:text-green-400">Wins</p>
+              <p className="text-lg font-semibold text-green-700 dark:text-green-300">{stats.wins}</p>
             </div>
-            <div className="bg-orange-50 rounded-md p-2">
-              <p className="text-xs text-orange-600">Draws</p>
-              <p className="text-lg font-semibold text-orange-700">{stats.draws}</p>
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-md p-2">
+              <p className="text-xs text-orange-600 dark:text-orange-400">Draws</p>
+              <p className="text-lg font-semibold text-orange-700 dark:text-orange-300">{stats.draws}</p>
             </div>
-            <div className="bg-red-50 rounded-md p-2">
-              <p className="text-xs text-red-600">Losses</p>
-              <p className="text-lg font-semibold text-red-700">{stats.losses}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-md p-2">
+              <p className="text-xs text-red-600 dark:text-red-400">Losses</p>
+              <p className="text-lg font-semibold text-red-700 dark:text-red-300">{stats.losses}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Sets Won</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.setsWon}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Sets Won</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.setsWon}</p>
             </div>
-            <Target className="h-8 w-8 text-green-500" />
+            <Target className="h-8 w-8 text-green-500 dark:text-green-400" />
           </div>
           <div className="mt-4">
-            <div className="bg-gray-50 rounded-md p-3">
-              <p className="text-xs text-gray-600">Average per Match</p>
-              <p className="text-lg font-semibold text-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md p-3">
+              <p className="text-xs text-gray-600 dark:text-gray-400">Average per Match</p>
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
                 {stats.totalGames > 0 ? (stats.setsWon / stats.totalGames).toFixed(1) : '0'}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Sets Lost</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.setsLost}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Sets Lost</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.setsLost}</p>
             </div>
-            <Minus className="h-8 w-8 text-red-500" />
+            <Minus className="h-8 w-8 text-red-500 dark:text-red-400" />
           </div>
           <div className="mt-4">
-            <div className="bg-gray-50 rounded-md p-3">
-              <p className="text-xs text-gray-600">Average per Match</p>
-              <p className="text-lg font-semibold text-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md p-3">
+              <p className="text-xs text-gray-600 dark:text-gray-400">Average per Match</p>
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
                 {stats.totalGames > 0 ? (stats.setsLost / stats.totalGames).toFixed(1) : '0'}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Points</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.pointsWon}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Points</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.pointsWon}</p>
             </div>
-            <Target className="h-8 w-8 text-purple-500" />
+            <Target className="h-8 w-8 text-purple-500 dark:text-purple-400" />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="bg-gray-50 rounded-md p-2">
-              <p className="text-xs text-gray-600">Won</p>
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md p-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400">Won</p>
               <div className="space-y-1">
-                <p className="text-lg font-semibold text-gray-700">{stats.pointsWon}</p>
-                <p className="text-xs text-gray-500">Avg: {avgPointsPerMatch}/match</p>
+                <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">{stats.pointsWon}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Avg: {avgPointsPerMatch}/match</p>
               </div>
             </div>
-            <div className="bg-gray-50 rounded-md p-2">
-              <p className="text-xs text-gray-600">Lost</p>
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md p-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400">Lost</p>
               <div className="space-y-1">
-                <p className="text-lg font-semibold text-gray-700">{stats.pointsLost}</p>
-                <p className="text-xs text-gray-500">Avg: {avgPointsLostPerMatch}/match</p>
+                <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">{stats.pointsLost}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Avg: {avgPointsLostPerMatch}/match</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-xl font-semibold mb-6">Player Rankings</h3>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <h3 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Player Rankings</h3>
         <PlayerRankings 
           matches={matches} 
           currentUserId={userId}
