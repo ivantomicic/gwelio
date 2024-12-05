@@ -176,7 +176,7 @@ export function PlayerRankings({
 				<div className="space-y-3">
 					{topScorers.length === 0 ? (
 						<p className="text-gray-500 dark:text-gray-400">
-							No matches played yet
+							Nema odigranih mečeva
 						</p>
 					) : (
 						topScorers.map((player, index) => (
