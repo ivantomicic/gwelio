@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { Mail, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 export function LoginForm() {
@@ -35,7 +36,15 @@ export function LoginForm() {
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lozinka</label>
+        <div className="flex items-center justify-between">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lozinka</label>
+          <Link
+            to="/auth/forgot-password"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+          >
+            Zaboravili ste lozinku?
+          </Link>
+        </div>
         <div className="mt-1 relative">
           <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
           <input
