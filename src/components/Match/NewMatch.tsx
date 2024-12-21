@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuthStore } from "../../store/authStore";
-import { createTempMatch, createMatch } from "../../lib/matches";
+import { createTempMatch, createMatch, getTempMatch } from "../../lib/matches";
 import { getAllUsers } from "../../lib/supabase";
 import { getWebhooks } from "../../lib/webhooks";
 import { User, Webhook, TempMatch, Match, MatchSet } from "../../types";
@@ -9,6 +9,7 @@ import { WebhookSelector } from "./WebhookSelector";
 import { ActiveMatch } from "./ActiveMatch";
 import { User as UserIcon, Trophy, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
+import { supabase } from "../../lib/supabase";
 
 interface NewMatchProps {
 	onMatchCreated: (match: TempMatch | Match) => void;
@@ -46,6 +47,44 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 		fetchData();
 	}, [user]);
 
+	useEffect(() => {
+		async function checkForActiveMatch() {
+			if (!user) return;
+
+			try {
+				// Get all temp matches where user is player1
+				const { data: tempMatches, error } = await supabase
+					.from("temp_matches")
+					.select("*")
+					.eq("player1_id", user.id)
+					.limit(1)
+					.single();
+
+				if (error) {
+					if (error.code !== "PGRST116") {
+						// Not found error
+						console.error(
+							"Error checking for active match:",
+							error
+						);
+					}
+					return;
+				}
+
+				if (tempMatches) {
+					setActiveMatch(tempMatches);
+					setOpponent(tempMatches.player2_id);
+					setPlayer1Webhook(tempMatches.player1_webhook_id);
+					setPlayer2Webhook(tempMatches.player2_webhook_id);
+				}
+			} catch (error) {
+				console.error("Error checking for active match:", error);
+			}
+		}
+
+		checkForActiveMatch();
+	}, [user]);
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!user) return;
@@ -77,11 +116,6 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 	const handleMatchComplete = async (match: TempMatch, sets: MatchSet[]) => {
 		if (!user) return;
 
-		console.log("Match complete handler called with:", {
-			match,
-			sets,
-		});
-
 		const totalScore = sets.reduce(
 			(acc, set) => {
 				if (set.player1Score > set.player2Score) acc.player1++;
@@ -90,8 +124,6 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 			},
 			{ player1: 0, player2: 0 }
 		);
-
-		console.log("Calculated total score:", totalScore);
 
 		try {
 			const newMatch = await createMatch(
@@ -102,7 +134,6 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 				sets
 			);
 
-			console.log("Match created:", newMatch);
 			onMatchCreated(newMatch);
 			toast.success("Match submitted for confirmation");
 			fireConfetti();

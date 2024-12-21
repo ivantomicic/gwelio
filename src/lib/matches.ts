@@ -1,5 +1,6 @@
-import { Match, Set, TempMatch } from "../types";
+import { Match, TempMatch } from "../types";
 import { supabase } from "./supabase";
+import { checkSetComplete } from "./scoring";
 
 export async function createTempMatch(
 	player1Id: string,
@@ -44,7 +45,8 @@ export async function updateTempMatchSet(
 	matchId: string,
 	setNumber: number,
 	player1Score: number,
-	player2Score: number
+	player2Score: number,
+	isComplete: boolean = false
 ): Promise<void> {
 	const { error } = await supabase.from("temp_match_sets").upsert(
 		{
@@ -52,6 +54,7 @@ export async function updateTempMatchSet(
 			set_number: setNumber,
 			player1_score: player1Score,
 			player2_score: player2Score,
+			is_complete: isComplete,
 		},
 		{
 			onConflict: "temp_match_id,set_number",
@@ -181,4 +184,67 @@ export async function createMatch(
 		console.error("Error creating match:", error);
 		throw error;
 	}
+}
+
+export async function deleteTempMatch(matchId: string) {
+	const { error } = await supabase
+		.from("temp_match_sets")
+		.delete()
+		.eq("temp_match_id", matchId);
+
+	if (error) {
+		console.error("Error deleting temp match sets:", error);
+		throw error;
+	}
+
+	const { error: matchError } = await supabase
+		.from("temp_matches")
+		.delete()
+		.eq("id", matchId);
+
+	if (matchError) {
+		console.error("Error deleting temp match:", matchError);
+		throw matchError;
+	}
+}
+
+export async function getTempMatchSets(matchId: string) {
+	const { data, error } = await supabase
+		.from("temp_match_sets")
+		.select("*")
+		.eq("temp_match_id", matchId)
+		.order("set_number", { ascending: true });
+
+	if (error) {
+		console.error("Error fetching temp match sets:", error);
+		throw error;
+	}
+
+	// Temporarily determine completion based on scores
+	const processedData = data.map((set) => ({
+		...set,
+		is_complete: checkSetComplete(set.player1_score, set.player2_score)
+			.isComplete,
+	}));
+
+	return processedData;
+}
+
+export async function getTempMatch(matchId: string): Promise<TempMatch | null> {
+	const { data, error } = await supabase
+		.from("temp_matches")
+		.select("*")
+		.eq("id", matchId)
+		.single();
+
+	if (error) {
+		if (error.code === "PGRST116") {
+			// No rows returned
+			return null;
+		}
+		console.error("Error fetching temp match:", error);
+		throw error;
+	}
+
+	return data;
 }

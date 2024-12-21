@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { TempMatch, User } from "../../types";
+import { useEffect, useState } from "react";
+import { TempMatch, User, MatchSet } from "../../types";
 import { getAllUsers } from "../../lib/supabase";
 import { Target, Plus, Trophy } from "lucide-react";
-import { updateTempMatchSet } from "../../lib/matches";
+import {
+	updateTempMatchSet,
+	deleteTempMatch,
+	getTempMatchSets,
+	getTempMatch,
+} from "../../lib/matches";
 import { checkSetComplete } from "../../lib/scoring";
 import toast from "react-hot-toast";
 
 interface ActiveMatchProps {
 	match: TempMatch;
 	onCancel: () => void;
-	onComplete: (match: TempMatch, sets: any[]) => void;
+	onComplete: (match: TempMatch, sets: MatchSet[]) => void;
 }
 
 export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
@@ -32,34 +37,48 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 		loadUsers();
 	}, []);
 
+	useEffect(() => {
+		async function loadMatchData() {
+			try {
+				// First verify the match still exists
+				const tempMatch = await getTempMatch(match.id);
+
+				if (!tempMatch) {
+					toast.error("This match is no longer active");
+					onCancel(); // Return to previous screen
+					return;
+				}
+
+				const sets = await getTempMatchSets(match.id);
+
+				// Find the current set
+				const currentSetData = sets.find((s) => !s.is_complete);
+				const completedSetsData = sets.filter((s) => s.is_complete);
+
+				if (currentSetData) {
+					setCurrentSet(currentSetData.set_number);
+					setPlayer1Score(currentSetData.player1_score);
+					setPlayer2Score(currentSetData.player2_score);
+				}
+
+				// Convert completed sets to the format we use
+				setCompletedSets(
+					completedSetsData.map((set) => ({
+						player1Score: set.player1_score,
+						player2Score: set.player2_score,
+					}))
+				);
+			} catch (error) {
+				toast.error("Failed to load match data");
+			}
+		}
+
+		loadMatchData();
+	}, [match.id, onCancel]);
+
 	const getPlayerName = (id: string) => {
 		const user = users.find((u) => u.id === id);
 		return user?.full_name || "Loading...";
-	};
-
-	const startNewSet = (
-		finalPlayer1Score: number,
-		finalPlayer2Score: number
-	) => {
-		console.log("Starting new set with scores to save:", {
-			finalPlayer1Score,
-			finalPlayer2Score,
-		});
-		setCompletedSets((prev) => {
-			console.log("Previous completed sets:", prev);
-			const newSets = [
-				...prev,
-				{
-					player1Score: finalPlayer1Score,
-					player2Score: finalPlayer2Score,
-				},
-			];
-			console.log("New completed sets:", newSets);
-			return newSets;
-		});
-		setCurrentSet((prev) => prev + 1);
-		setPlayer1Score(0);
-		setPlayer2Score(0);
 	};
 
 	const handleScoreUpdate = async (playerId: string) => {
@@ -67,14 +86,6 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 			const isPlayer1 = playerId === match.player1_id;
 			const newPlayer1Score = isPlayer1 ? player1Score + 1 : player1Score;
 			const newPlayer2Score = isPlayer1 ? player2Score : player2Score + 1;
-
-			console.log("Updating score:", {
-				isPlayer1,
-				newPlayer1Score,
-				newPlayer2Score,
-				currentSet,
-				completedSets,
-			});
 
 			// Update local state first
 			if (isPlayer1) {
@@ -97,15 +108,21 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 				newPlayer2Score
 			);
 
-			console.log("Set complete check:", {
-				setResult,
-				currentSet,
-				completedSets,
-			});
-
 			if (setResult.isComplete) {
+				// Mark the current set as complete in the database
+				await updateTempMatchSet(
+					match.id,
+					currentSet,
+					newPlayer1Score,
+					newPlayer2Score,
+					true // Mark as complete
+				);
+
+				// Create the next set
+				await updateTempMatchSet(match.id, currentSet + 1, 0, 0);
+
+				// Update local state
 				toast.success(`Set ${currentSet} complete!`);
-				// Add current set to completed sets
 				setCompletedSets((prev) => [
 					...prev,
 					{
@@ -113,17 +130,13 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 						player2Score: newPlayer2Score,
 					},
 				]);
-
-				// Reset scores for next set
 				setPlayer1Score(0);
 				setPlayer2Score(0);
 				setCurrentSet((prev) => prev + 1);
 			}
 		} catch (error) {
-			console.error("Error updating score:", error);
 			toast.error("Failed to update score");
-
-			// Revert local state on error
+			const isPlayer1 = playerId === match.player1_id;
 			if (isPlayer1) {
 				setPlayer1Score(player1Score);
 			} else {
@@ -132,26 +145,27 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 		}
 	};
 
-	const handleSubmit = () => {
-		console.log("Submitting match:", {
-			completedSets,
-			currentScores: {
-				player1Score,
-				player2Score,
-			},
-		});
+	const handleSubmit = async () => {
+		try {
+			// Include the current set if it has any points
+			const allSets = [...completedSets];
+			if (player1Score > 0 || player2Score > 0) {
+				allSets.push({
+					player1Score,
+					player2Score,
+				});
+			}
 
-		// Include the current set if it has any points
-		const allSets = [...completedSets];
-		if (player1Score > 0 || player2Score > 0) {
-			allSets.push({
-				player1Score,
-				player2Score,
-			});
+			// Submit the match first
+			await onComplete(match, allSets);
+
+			// Then clean up the temporary data
+			await deleteTempMatch(match.id);
+
+			toast.success("Match completed and temporary data cleaned up");
+		} catch (error) {
+			toast.error("Failed to submit match");
 		}
-
-		console.log("Final sets to submit:", allSets);
-		onComplete(match, allSets);
 	};
 
 	return (
@@ -174,30 +188,6 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 			</div>
 
 			<div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-				{/* Completed Sets */}
-				{completedSets.length > 0 && (
-					<div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-						<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							Completed Sets
-						</h4>
-						<div className="space-y-2">
-							{completedSets.map((set, index) => (
-								<div
-									key={index}
-									className="flex justify-center space-x-4 text-sm"
-								>
-									<span className="text-gray-600 dark:text-gray-400">
-										Set {index + 1}:
-									</span>
-									<span className="font-medium text-gray-900 dark:text-white">
-										{set.player1Score} - {set.player2Score}
-									</span>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
-
 				{/* Current Set */}
 				<div className="grid grid-cols-3 gap-4 text-center">
 					<div>
@@ -265,6 +255,30 @@ export function ActiveMatch({ match, onCancel, onComplete }: ActiveMatchProps) {
 						Set will automatically advance when complete
 					</p>
 				</div>
+
+				{/* Completed Sets */}
+				{completedSets.length > 0 && (
+					<div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+						<h4 className="text-sm text-center font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Completed Sets
+						</h4>
+						<div className="space-y-2">
+							{completedSets.map((set, index) => (
+								<div
+									key={index}
+									className="flex justify-center space-x-4 text-sm"
+								>
+									<span className="text-gray-600 dark:text-gray-400">
+										Set {index + 1}:
+									</span>
+									<span className="font-medium text-gray-900 dark:text-white">
+										{set.player1Score} - {set.player2Score}
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 
 			<button
