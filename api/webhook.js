@@ -30,6 +30,11 @@ export default async function handler(req, res) {
 				message: "Database connection error",
 				error: connectionError,
 				details: "Failed to connect to Supabase",
+				debugInfo: {
+					connectionTest,
+					connectionError,
+					timestamp: new Date().toISOString(),
+				},
 			});
 		}
 
@@ -67,6 +72,11 @@ export default async function handler(req, res) {
 				error: webhookError,
 				searchedUrl: webhookUrl,
 				receivedQuery: req.query,
+				debugInfo: {
+					connectionStatus: "Connected",
+					queryAttempted: query.toString(),
+					timestamp: new Date().toISOString(),
+				},
 			});
 		}
 
