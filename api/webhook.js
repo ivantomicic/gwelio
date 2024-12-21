@@ -18,20 +18,40 @@ export default async function handler(req, res) {
 		console.log("Incoming request query:", req.query);
 		console.log("Incoming webhookName:", webhookName);
 
+		// Test Supabase connection and table access
+		console.log("Testing Supabase connection...");
+		const { data: connectionTest, error: connectionError } = await supabase
+			.from("webhooks")
+			.select("count");
+
+		if (connectionError) {
+			console.error("Supabase connection error:", connectionError);
+			return res.status(500).json({
+				message: "Database connection error",
+				error: connectionError,
+				details: "Failed to connect to Supabase",
+			});
+		}
+
+		console.log("Connection successful, found records:", connectionTest);
+
+		// Now try the webhook query
 		const webhookUrl = `https://gweilo.vercel.app/api/webhook?webhookName=${webhookName}`;
 		console.log("Looking for webhook URL:", webhookUrl);
 
-		// Log the full query we're about to make
-		console.log(
-			"Executing Supabase query for webhooks table with URL:",
-			webhookUrl
-		);
-
-		const { data: webhook, error: webhookError } = await supabase
+		// Log the raw query details
+		const query = supabase
 			.from("webhooks")
-			.select("*") // Changed to select all fields for better debugging
-			.eq("url", webhookUrl)
-			.single();
+			.select("*")
+			.eq("url", webhookUrl);
+
+		console.log("Query details:", {
+			table: "webhooks",
+			searchUrl: webhookUrl,
+			queryString: query.toString(), // This will show the constructed query
+		});
+
+		const { data: webhook, error: webhookError } = await query.single();
 
 		// Enhanced logging for webhook query results
 		console.log("Webhook query complete:");
