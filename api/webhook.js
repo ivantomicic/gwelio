@@ -13,15 +13,23 @@ export default async function handler(req, res) {
 	}
 
 	try {
-		// 1. Find the corresponding webhook
+		// Add logging to see the incoming webhookName
+		console.log("Incoming webhookName:", webhookName);
+
+		const webhookUrl = `https://gweilo.vercel.app/api/webhook?webhookName=${webhookName}`;
+		console.log("Looking for webhook URL:", webhookUrl);
+
 		const { data: webhook, error: webhookError } = await supabase
 			.from("webhooks")
 			.select("id")
-			.eq(
-				"url",
-				`https://gweilo.vercel.app/api/webhook?webhookName=${webhookName}`
-			)
+			.eq("url", webhookUrl)
 			.single();
+
+		// Add logging to see the query results
+		console.log("Webhook query result:", {
+			data: webhook,
+			error: webhookError,
+		});
 
 		if (webhookError || !webhook) {
 			console.error("Webhook error:", webhookError);
