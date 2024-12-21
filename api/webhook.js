@@ -15,8 +15,11 @@ const supabase = createClient(
 export default async function handler(req, res) {
 	const { webhookName } = req.query;
 
-	if (req.method !== "POST") {
-		return res.status(405).json({ message: "Only POST requests allowed" });
+	// Allow both GET and POST requests
+	if (req.method !== "GET" && req.method !== "POST") {
+		return res
+			.status(405)
+			.json({ message: "Only GET and POST requests allowed" });
 	}
 
 	try {
