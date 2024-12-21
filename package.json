@@ -4,13 +4,10 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"server": "tsx server/index.ts",
-		"dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+		"dev": "netlify dev",
 		"build": "vite build",
 		"lint": "eslint .",
-		"preview": "vite preview",
-		"dev:netlify": "netlify dev"
+		"preview": "vite preview"
 	},
 	"dependencies": {
 		"@supabase/auth-ui-react": "^0.4.7",
