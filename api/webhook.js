@@ -2,7 +2,14 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
 	"https://pulwkoymwvvdwmrhkcpa.supabase.co",
-	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1bHdrb3ltd3Z2ZHdtcmhrY3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzOTk3MTksImV4cCI6MjA0ODk3NTcxOX0.ScJKBIiUmj8geWvI0ZDp_hJ3bgozvQ1Q_tn-9aNKQUk"
+	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1bHdrb3ltd3Z2ZHdtcmhrY3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzOTk3MTksImV4cCI6MjA0ODk3NTcxOX0.ScJKBIiUmj8geWvI0ZDp_hJ3bgozvQ1Q_tn-9aNKQUk",
+	{
+		auth: {
+			autoRefreshToken: true,
+			persistSession: true,
+			detectSessionInUrl: true,
+		},
+	}
 );
 
 export default async function handler(req, res) {
@@ -22,7 +29,7 @@ export default async function handler(req, res) {
 		console.log("Testing Supabase connection...");
 		const { data: connectionTest, error: connectionError } = await supabase
 			.from("webhooks")
-			.select("count");
+			.select("*");
 
 		if (connectionError) {
 			console.error("Supabase connection error:", connectionError);
@@ -38,30 +45,23 @@ export default async function handler(req, res) {
 			});
 		}
 
-		console.log("Connection successful, found records:", connectionTest);
+		console.log("Connection successful, all records:", connectionTest);
+
+		// Get all webhooks first to debug
+		const { data: allWebhooks, error: listError } = await supabase
+			.from("webhooks")
+			.select("*");
 
 		// Now try the webhook query
 		const webhookUrl = `https://gweilo.vercel.app/api/webhook?webhookName=${webhookName}`;
 		console.log("Looking for webhook URL:", webhookUrl);
 
-		// Log the raw query details
 		const query = supabase
 			.from("webhooks")
 			.select("*")
 			.eq("url", webhookUrl);
 
-		console.log("Query details:", {
-			table: "webhooks",
-			searchUrl: webhookUrl,
-			queryString: query.toString(), // This will show the constructed query
-		});
-
 		const { data: webhook, error: webhookError } = await query.single();
-
-		// Enhanced logging for webhook query results
-		console.log("Webhook query complete:");
-		console.log("- Found webhook:", webhook);
-		console.log("- Webhook error:", webhookError);
 
 		if (webhookError || !webhook) {
 			console.error("Webhook not found or error occurred:");
@@ -75,25 +75,46 @@ export default async function handler(req, res) {
 				debugInfo: {
 					connectionStatus: "Connected",
 					queryAttempted: query.toString(),
+					allWebhooksInDB: allWebhooks, // This will show all webhooks
+					searchingFor: webhookUrl,
 					timestamp: new Date().toISOString(),
 				},
 			});
 		}
 
 		const webhookId = webhook.id;
+		console.log("Found webhook ID:", webhookId);
+
+		// Add this before the match query to debug
+		const { data: allMatches, error: allMatchesError } = await supabase
+			.from("temp_matches")
+			.select("*");
+		console.log("All matches:", allMatches);
 
 		// 2. Find the match associated with this webhook
-		const { data: match, error: matchError } = await supabase
+		const matchQuery = supabase
 			.from("temp_matches")
 			.select("id, player1_webhook_id, player2_webhook_id")
 			.or(
 				`player1_webhook_id.eq.${webhookId},player2_webhook_id.eq.${webhookId}`
-			)
-			.single();
+			);
+
+		// Debug the match query
+		console.log("Match query:", matchQuery.toString());
+		const { data: match, error: matchError } = await matchQuery.single();
 
 		if (matchError || !match) {
 			console.error("Match error:", matchError);
-			return res.status(404).json({ message: "Match not found" });
+			// Enhanced error response
+			return res.status(404).json({
+				message: "Match not found",
+				debugInfo: {
+					webhookId,
+					searchQuery: matchQuery.toString(),
+					error: matchError,
+					timestamp: new Date().toISOString(),
+				},
+			});
 		}
 
 		const matchId = match.id;
