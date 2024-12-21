@@ -13,27 +13,41 @@ export default async function handler(req, res) {
 	}
 
 	try {
-		// Add logging to see the incoming webhookName
+		// Add request body logging
+		console.log("Incoming request body:", req.body);
+		console.log("Incoming request query:", req.query);
 		console.log("Incoming webhookName:", webhookName);
 
 		const webhookUrl = `https://gweilo.vercel.app/api/webhook?webhookName=${webhookName}`;
 		console.log("Looking for webhook URL:", webhookUrl);
 
+		// Log the full query we're about to make
+		console.log(
+			"Executing Supabase query for webhooks table with URL:",
+			webhookUrl
+		);
+
 		const { data: webhook, error: webhookError } = await supabase
 			.from("webhooks")
-			.select("id")
+			.select("*") // Changed to select all fields for better debugging
 			.eq("url", webhookUrl)
 			.single();
 
-		// Add logging to see the query results
-		console.log("Webhook query result:", {
-			data: webhook,
-			error: webhookError,
-		});
+		// Enhanced logging for webhook query results
+		console.log("Webhook query complete:");
+		console.log("- Found webhook:", webhook);
+		console.log("- Webhook error:", webhookError);
 
 		if (webhookError || !webhook) {
-			console.error("Webhook error:", webhookError);
-			return res.status(404).json({ message: "Webhook not found" });
+			console.error("Webhook not found or error occurred:");
+			console.error("- Error:", webhookError);
+			console.error("- Webhook data:", webhook);
+			return res.status(404).json({
+				message: "Webhook not found",
+				error: webhookError,
+				searchedUrl: webhookUrl,
+				receivedQuery: req.query,
+			});
 		}
 
 		const webhookId = webhook.id;
