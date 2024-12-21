@@ -1,4 +1,9 @@
-import { supabase } from "../src/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+	"https://pulwkoymwvvdwmrhkcpa.supabase.co",
+	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1bHdrb3ltd3Z2ZHdtcmhrY3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzOTk3MTksImV4cCI6MjA0ODk3NTcxOX0.ScJKBIiUmj8geWvI0ZDp_hJ3bgozvQ1Q_tn-9aNKQUk"
+);
 
 export default async function handler(req, res) {
 	const { webhookName } = req.query;
