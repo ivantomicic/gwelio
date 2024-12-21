@@ -7,14 +7,18 @@ export async function POST(
 	try {
 		const { buttonId } = params;
 
-		// Log the incoming webhook for debugging
-		console.log("Webhook received:", buttonId);
+		// Map button IDs to score values if needed
+		const scoreIncrease = 1; // Or whatever score value you want to use
 
-		// You can add score tracking logic here if needed
-		// For now, just acknowledge the score increase
+		// Log the incoming webhook for debugging
+		console.log(
+			`Webhook received for ${buttonId}, increasing score by ${scoreIncrease}`
+		);
+
 		return NextResponse.json({
 			success: true,
-			message: `Score button ${buttonId} pressed`,
+			message: `Score increased for ${buttonId}`,
+			scoreIncrease,
 		});
 	} catch (error) {
 		console.error("Error processing webhook:", error);
