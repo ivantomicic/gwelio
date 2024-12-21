@@ -1,123 +1,184 @@
-import { Match, Set } from '../types';
-import { supabase } from './supabase';
+import { Match, Set, TempMatch } from "../types";
+import { supabase } from "./supabase";
 
-export const createMatch = async (
-  player1Id: string,
-  player2Id: string,
-  player1Score: number,
-  player2Score: number,
-  sets: Set[]
-): Promise<Match> => {
-  // First insert the match
-  const { data: match, error: matchError } = await supabase
-    .from('matches')
-    .insert({
-      player1_id: player1Id,
-      player2_id: player2Id,
-      player1_score: player1Score,
-      player2_score: player2Score,
-      status: 'pending'
-    })
-    .select()
-    .single();
+export async function createTempMatch(
+	player1Id: string,
+	player2Id: string,
+	player1WebhookId: string | null,
+	player2WebhookId: string | null
+): Promise<TempMatch> {
+	const { data: match, error } = await supabase
+		.from("temp_matches")
+		.insert({
+			player1_id: player1Id,
+			player2_id: player2Id,
+			player1_webhook_id: player1WebhookId,
+			player2_webhook_id: player2WebhookId,
+			current_set: 1,
+		})
+		.select()
+		.single();
 
-  if (matchError) {
-    console.error('Error creating match:', matchError);
-    throw matchError;
-  }
+	if (error) {
+		console.error("Error creating temp match:", error);
+		throw error;
+	}
 
-  // Then insert all sets
-  const setsToInsert = sets.map((set, index) => ({
-    match_id: match.id,
-    player1_score: set.player1Score,
-    player2_score: set.player2Score,
-    set_number: index + 1
-  }));
+	// Create initial set
+	const { error: setError } = await supabase.from("temp_match_sets").insert({
+		temp_match_id: match.id,
+		set_number: 1,
+		player1_score: 0,
+		player2_score: 0,
+	});
 
-  const { error: setsError } = await supabase
-    .from('match_sets')
-    .insert(setsToInsert);
+	if (setError) {
+		console.error("Error creating initial set:", setError);
+		throw setError;
+	}
 
-  if (setsError) {
-    console.error('Error creating match sets:', setsError);
-    throw setsError;
-  }
+	return match;
+}
 
-  return {
-    ...match,
-    sets: sets
-  };
-};
+export async function updateTempMatchSet(
+	matchId: string,
+	setNumber: number,
+	player1Score: number,
+	player2Score: number
+): Promise<void> {
+	const { error } = await supabase.from("temp_match_sets").upsert(
+		{
+			temp_match_id: matchId,
+			set_number: setNumber,
+			player1_score: player1Score,
+			player2_score: player2Score,
+		},
+		{
+			onConflict: "temp_match_id,set_number",
+		}
+	);
 
-export const getMatches = async (userId: string): Promise<Match[]> => {
-  // First get all matches
-  const { data: matches, error: matchesError } = await supabase
-    .from('matches')
-    .select(`
+	if (error) {
+		console.error("Error updating match set:", error);
+		throw error;
+	}
+}
+
+export async function getMatches(userId: string): Promise<Match[]> {
+	const { data: matches, error: matchesError } = await supabase
+		.from("matches")
+		.select(
+			`
       *,
       player1:player1_id(full_name),
       player2:player2_id(full_name)
-    `)
-    .or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
-    .order('created_at', { ascending: false });
+    `
+		)
+		.or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
+		.order("created_at", { ascending: false });
 
-  if (matchesError) {
-    console.error('Error fetching matches:', matchesError);
-    throw matchesError;
-  }
+	if (matchesError) {
+		console.error("Error fetching matches:", matchesError);
+		throw matchesError;
+	}
 
-  // Then get all sets for these matches
-  const matchIds = matches.map(m => m.id);
-  const { data: sets, error: setsError } = await supabase
-    .from('match_sets')
-    .select('*')
-    .in('match_id', matchIds)
-    .order('set_number', { ascending: true });
+	const matchIds = matches.map((m) => m.id);
+	const { data: sets, error: setsError } = await supabase
+		.from("match_sets")
+		.select("*")
+		.in("match_id", matchIds)
+		.order("set_number", { ascending: true });
 
-  if (setsError) {
-    console.error('Error fetching match sets:', setsError);
-    throw setsError;
-  }
+	if (setsError) {
+		console.error("Error fetching match sets:", setsError);
+		throw setsError;
+	}
 
-  // Combine matches with their sets
-  return matches.map(match => ({
-    ...match,
-    sets: sets
-      .filter(set => set.match_id === match.id)
-      .map(set => ({
-        player1Score: set.player1_score,
-        player2Score: set.player2_score
-      }))
-  }));
-};
+	return matches.map((match) => ({
+		...match,
+		sets: sets
+			.filter((set) => set.match_id === match.id)
+			.map((set) => ({
+				player1Score: set.player1_score,
+				player2Score: set.player2_score,
+			})),
+	}));
+}
 
-export const updateMatchStatus = async (
-  matchId: string,
-  status: 'confirmed' | 'rejected'
-): Promise<Match> => {
-  const { data: match, error } = await supabase
-    .from('matches')
-    .update({ status })
-    .eq('id', matchId)
-    .select()
-    .single();
+export async function updateMatchStatus(
+	matchId: string,
+	status: "confirmed" | "rejected"
+): Promise<Match> {
+	const { data: match, error } = await supabase
+		.from("matches")
+		.update({ status })
+		.eq("id", matchId)
+		.select()
+		.single();
 
-  if (error) {
-    console.error('Error updating match status:', error);
-    throw error;
-  }
+	if (error) {
+		console.error("Error updating match status:", error);
+		throw error;
+	}
 
-  return match;
-};
+	return match;
+}
 
-export const deleteMatch = async (matchId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('matches')
-    .delete()
-    .eq('id', matchId);
+export async function deleteMatch(matchId: string): Promise<void> {
+	const { error } = await supabase.from("matches").delete().eq("id", matchId);
 
-  if (error) {
-    console.error('Error deleting match:', error);
-    throw error;
-  }
-};
+	if (error) {
+		console.error("Error deleting match:", error);
+		throw error;
+	}
+}
+
+export async function createMatch(
+	player1Id: string,
+	player2Id: string,
+	player1Score: number,
+	player2Score: number,
+	sets: Array<{ player1Score: number; player2Score: number }>
+) {
+	try {
+		// First create the match
+		const { data: match, error: matchError } = await supabase
+			.from("matches")
+			.insert([
+				{
+					player1_id: player1Id,
+					player2_id: player2Id,
+					player1_score: player1Score,
+					player2_score: player2Score,
+					status: "pending", // Match needs to be confirmed by opponent
+				},
+			])
+			.select()
+			.single();
+
+		if (matchError) throw matchError;
+
+		// Then create the sets
+		const setsToInsert = sets.map((set, index) => ({
+			match_id: match.id,
+			set_number: index + 1,
+			player1_score: set.player1Score,
+			player2_score: set.player2Score,
+		}));
+
+		const { error: setsError } = await supabase
+			.from("match_sets")
+			.insert(setsToInsert);
+
+		if (setsError) throw setsError;
+
+		// Return the match with sets
+		return {
+			...match,
+			sets: sets,
+		};
+	} catch (error) {
+		console.error("Error creating match:", error);
+		throw error;
+	}
+}
