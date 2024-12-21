@@ -3,7 +3,7 @@ import { useAuthStore } from "../../store/authStore";
 import { createTempMatch, createMatch } from "../../lib/matches";
 import { getAllUsers } from "../../lib/supabase";
 import { getWebhooks } from "../../lib/webhooks";
-import { User, Webhook, TempMatch } from "../../types";
+import { User, Webhook, TempMatch, Match, MatchSet } from "../../types";
 import { fireConfetti } from "../../lib/confetti";
 import { WebhookSelector } from "./WebhookSelector";
 import { ActiveMatch } from "./ActiveMatch";
@@ -11,7 +11,7 @@ import { User as UserIcon, Trophy, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface NewMatchProps {
-	onMatchCreated: (match: TempMatch | any) => void;
+	onMatchCreated: (match: TempMatch | Match) => void;
 }
 
 export function NewMatch({ onMatchCreated }: NewMatchProps) {
@@ -74,7 +74,7 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 		setPlayer2Webhook(null);
 	};
 
-	const handleMatchComplete = async (match: TempMatch, sets: any[]) => {
+	const handleMatchComplete = async (match: TempMatch, sets: MatchSet[]) => {
 		if (!user) return;
 
 		console.log("Match complete handler called with:", {
@@ -214,13 +214,13 @@ export function NewMatch({ onMatchCreated }: NewMatchProps) {
 						webhooks={webhooks}
 						selectedWebhook={player1Webhook}
 						onChange={setPlayer1Webhook}
-						label="Your Score Webhook"
+						label="Your Button"
 					/>
 					<WebhookSelector
 						webhooks={webhooks}
 						selectedWebhook={player2Webhook}
 						onChange={setPlayer2Webhook}
-						label="Opponent Score Webhook"
+						label={`${selectedOpponent?.full_name}'s Button`}
 					/>
 				</div>
 			)}

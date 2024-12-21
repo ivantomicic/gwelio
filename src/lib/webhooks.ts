@@ -1,6 +1,12 @@
 import { supabase } from "./supabase";
 import { Webhook } from "../types";
 
+interface WebhookPayload {
+	event: string;
+	data: Record<string, unknown>;
+	timestamp?: string;
+}
+
 export async function getWebhooks(): Promise<Webhook[]> {
 	const { data, error } = await supabase
 		.from("webhooks")
@@ -11,7 +17,10 @@ export async function getWebhooks(): Promise<Webhook[]> {
 	return data || [];
 }
 
-export async function triggerWebhook(url: string, payload: any): Promise<void> {
+export async function triggerWebhook(
+	url: string,
+	payload: WebhookPayload
+): Promise<void> {
 	try {
 		const response = await fetch(url, {
 			method: "POST",

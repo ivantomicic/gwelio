@@ -18,7 +18,7 @@ export interface TempMatch {
 	expires_at: string;
 }
 
-export interface Set {
+export interface MatchSet {
 	player1Score: number;
 	player2Score: number;
 }
@@ -31,11 +31,17 @@ export interface Match {
 	player2_score: number;
 	status: "pending" | "confirmed" | "rejected";
 	created_at: string;
-	sets: Set[];
+	sets: MatchSet[];
 	player1?: {
 		full_name: string;
 	};
 	player2?: {
 		full_name: string;
 	};
+}
+
+export interface User {
+	id: string;
+	full_name: string;
+	email?: string;
 }
