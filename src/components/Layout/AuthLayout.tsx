@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "../../store/themeStore";
 import { AuthLayoutProps } from "../../types";
 import { toast } from "react-hot-toast";
+import { ResetPassword } from "../Auth/ResetPassword";
 
 const quotes = [
 	"It is better to die like a tiger, than to live like a pussy.",
@@ -14,7 +15,9 @@ const quotes = [
 ];
 
 export function AuthLayout({ view, error }: AuthLayoutProps) {
-	const [showLogin, setShowLogin] = useState(view !== "register");
+	const [showLogin, setShowLogin] = useState(
+		view === "login" || (!view && true)
+	);
 	const [quote, setQuote] = useState("");
 	const isDark = useThemeStore((state) => state.isDark);
 
@@ -57,7 +60,9 @@ export function AuthLayout({ view, error }: AuthLayoutProps) {
 						{quote}
 					</p>
 				</div>
-				{showLogin ? (
+				{view === "reset-password" ? (
+					<ResetPassword />
+				) : showLogin ? (
 					<>
 						<LoginForm />
 						<p className="text-center text-sm text-gray-600 dark:text-gray-400">

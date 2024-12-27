@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 import { AuthLayout } from "./components/Layout/AuthLayout";
@@ -10,6 +9,8 @@ import { Header } from "./components/Layout/Header";
 
 function App() {
 	const user = useAuthStore((state) => state.user);
+	const searchParams = new URLSearchParams(window.location.search);
+	const hasResetCode = searchParams.has("code");
 
 	if (!user) {
 		return (
@@ -19,24 +20,20 @@ function App() {
 						path="/auth/forgot-password"
 						element={<ForgotPassword />}
 					/>
-					<Route
-						path="/auth/reset-password"
-						element={<ResetPassword />}
-					/>
-					<Route
-						path="/reset-password"
-						element={<AuthLayout view="reset-password" />}
-					/>
-					<Route
-						path="/"
-						element={
-							<AuthLayout
-								error={new URLSearchParams(
-									window.location.search
-								).get("error_description")}
-							/>
-						}
-					/>
+					{hasResetCode ? (
+						<Route path="*" element={<ResetPassword />} />
+					) : (
+						<Route
+							path="/"
+							element={
+								<AuthLayout
+									error={searchParams.get(
+										"error_description"
+									)}
+								/>
+							}
+						/>
+					)}
 				</Routes>
 			</Router>
 		);
