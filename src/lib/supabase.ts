@@ -146,13 +146,17 @@ export async function resetPassword(email: string) {
 	if (error) throw error;
 }
 
-export const updatePasswordWithToken = async (
-	newPassword: string,
-	code: string
-) => {
-	const { error } = await supabase.auth
-		.exchangeCodeForSession(code)
-		.then(() => supabase.auth.updateUser({ password: newPassword }));
+interface ResetPasswordResponse {
+	error?: Error;
+}
 
-	if (error) throw error;
-};
+export async function updatePasswordWithToken(
+	code: string,
+	newPassword: string
+): Promise<ResetPasswordResponse> {
+	const { error } = await supabase.auth.updateUser({
+		password: newPassword,
+	});
+
+	return { error: error || undefined };
+}

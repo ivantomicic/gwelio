@@ -35,10 +35,10 @@ export function ResetPassword() {
 
 		setLoading(true);
 		try {
-			const { error } = await updatePasswordWithToken(code, newPassword);
+			const result = await updatePasswordWithToken(code, newPassword);
 
-			if (error) {
-				throw error;
+			if (result?.error) {
+				throw result.error;
 			}
 
 			toast.success("Password updated successfully");
