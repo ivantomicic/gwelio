@@ -16,36 +16,36 @@ export function ResetPassword() {
 		if (!code) {
 			toast.error("Invalid reset link");
 			navigate("/");
+			return;
 		}
 	}, [code, navigate]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!code) {
-			toast.error("Invalid reset link");
-			return;
-		}
-
 		if (newPassword !== confirmPassword) {
-			toast.error("Lozinke se ne poklapaju");
+			toast.error("Passwords do not match");
 			return;
 		}
 
 		if (newPassword.length < 6) {
-			toast.error("Lozinka mora imati najmanje 6 karaktera");
+			toast.error("Password must be at least 6 characters");
 			return;
 		}
 
 		setLoading(true);
-
 		try {
-			await updatePasswordWithToken(newPassword, code);
-			toast.success("Lozinka je uspešno promenjena");
-			navigate("/");
-		} catch (error) {
-			console.error("Error resetting password:", error);
-			toast.error("Greška pri resetovanju lozinke");
+			const { error } = await updatePasswordWithToken(code, newPassword);
+
+			if (error) {
+				throw error;
+			}
+
+			toast.success("Password updated successfully");
+			navigate("/login");
+		} catch (error: any) {
+			console.error("Password reset error:", error);
+			toast.error(error.message || "Failed to reset password");
 		} finally {
 			setLoading(false);
 		}
