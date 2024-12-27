@@ -27,12 +27,11 @@ function App() {
 						path="/reset-password"
 						element={<AuthLayout view="reset-password" />}
 					/>
-					<Route path="/" element={<AuthLayout />}>
-						<Route
-							path="?code=:code"
-							element={<AuthLayout view="reset-password" />}
-						/>
-					</Route>
+					<Route path="/" element={<AuthLayout />} />
+					<Route
+						path="/reset-password"
+						element={<AuthLayout view="reset-password" />}
+					/>
 				</Routes>
 			</Router>
 		);
