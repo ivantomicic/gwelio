@@ -8,11 +8,6 @@ import { ForgotPassword } from "./components/Auth/ForgotPassword";
 import { ResetPassword } from "./components/Auth/ResetPassword";
 import { Header } from "./components/Layout/Header";
 
-interface AuthLayoutProps {
-	view?: string;
-	error?: string | null;
-}
-
 function App() {
 	const user = useAuthStore((state) => state.user);
 

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { LoginForm } from "../Auth/LoginForm";
 import { RegisterForm } from "../Auth/RegisterForm";
 import { ThemeToggle } from "../Theme/ThemeToggle";
 import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "../../store/themeStore";
+import { AuthLayoutProps } from "../../types";
+import { toast } from "react-hot-toast";
 
 const quotes = [
 	"It is better to die like a tiger, than to live like a pussy.",
@@ -11,8 +13,8 @@ const quotes = [
 	"Less talkie-talkie, more ping-pong.",
 ];
 
-export function AuthLayout() {
-	const [showLogin, setShowLogin] = useState(true);
+export function AuthLayout({ view, error }: AuthLayoutProps) {
+	const [showLogin, setShowLogin] = useState(view !== "register");
 	const [quote, setQuote] = useState("");
 	const isDark = useThemeStore((state) => state.isDark);
 
@@ -29,6 +31,12 @@ export function AuthLayout() {
 			document.documentElement.classList.remove("dark");
 		}
 	}, [isDark]);
+
+	useEffect(() => {
+		if (error) {
+			toast.error(error);
+		}
+	}, [error]);
 
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">

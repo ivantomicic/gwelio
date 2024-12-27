@@ -24,13 +24,6 @@ export function ForgotPassword() {
 		}
 	};
 
-	const handleResetPassword = async (email: string) => {
-		const { error } = await supabase.auth.resetPasswordForEmail(email, {
-			redirectTo: `${window.location.origin}/reset-password`,
-		});
-		// ... rest of the code
-	};
-
 	if (isEmailSent) {
 		return (
 			<div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
