@@ -8,6 +8,11 @@ import { ForgotPassword } from "./components/Auth/ForgotPassword";
 import { ResetPassword } from "./components/Auth/ResetPassword";
 import { Header } from "./components/Layout/Header";
 
+interface AuthLayoutProps {
+	view?: string;
+	error?: string | null;
+}
+
 function App() {
 	const user = useAuthStore((state) => state.user);
 
@@ -27,10 +32,15 @@ function App() {
 						path="/reset-password"
 						element={<AuthLayout view="reset-password" />}
 					/>
-					<Route path="/" element={<AuthLayout />} />
 					<Route
-						path="/reset-password"
-						element={<AuthLayout view="reset-password" />}
+						path="/"
+						element={
+							<AuthLayout
+								error={new URLSearchParams(
+									window.location.search
+								).get("error_description")}
+							/>
+						}
 					/>
 				</Routes>
 			</Router>
